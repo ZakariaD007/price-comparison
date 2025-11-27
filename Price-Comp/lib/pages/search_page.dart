@@ -7,7 +7,7 @@ import 'comparison_page.dart';
 
 class SearchPage extends StatefulWidget {
   final String initialQuery;
-  const SearchPage({this.initialQuery = ''});
+  const SearchPage({super.key, this.initialQuery = ''});
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -15,6 +15,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late TextEditingController _ctrl;
+  late FocusNode _searchFocusNode;
   List<Product> _results = [];
   bool _loading = false;
   String? _error;
@@ -29,6 +30,7 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
     debugPrint('[SearchPage] started');
     _ctrl = TextEditingController(text: widget.initialQuery);
+    _searchFocusNode = FocusNode();
     if (widget.initialQuery.isNotEmpty) _submitSearch();
   }
 
@@ -36,6 +38,7 @@ class _SearchPageState extends State<SearchPage> {
   void dispose() {
     debugPrint('[SearchPage] stopped');
     _ctrl.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -102,6 +105,7 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+
   void _openFilterModal() {
     final minCtrl = TextEditingController(
       text: _filterMinPrice?.toStringAsFixed(2) ?? '',
@@ -136,7 +140,9 @@ class _SearchPageState extends State<SearchPage> {
                           'Filters',
                           style: TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Inter',
+                            color: Color(0xFF3D3D3D),
                           ),
                         ),
                         IconButton(
@@ -147,21 +153,43 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      value: selCat,
-                      hint: const Text('Category (optional)'),
+                      initialValue: selCat,
+                      hint: const Text(
+                        'Category (optional)',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF3D3D3D),
+                        ),
+                      ),
                       items:
                           [
                             null,
                             ...MockDatabase.categories.map((c) => c['name']),
                           ].map((v) {
-                            if (v == null)
+                            if (v == null) {
                               return const DropdownMenuItem<String>(
                                 value: null,
-                                child: Text('Any'),
+                                child: Text(
+                                  'Any',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF3D3D3D),
+                                  ),
+                                ),
                               );
+                            }
                             return DropdownMenuItem<String>(
                               value: v,
-                              child: Text(v),
+                              child: Text(
+                                v,
+                                style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF3D3D3D),
+                                ),
+                              ),
                             );
                           }).toList(),
                       onChanged: (v) => setStateModal(() => selCat = v),
@@ -174,6 +202,16 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                       decoration: const InputDecoration(
                         labelText: 'Min price (R)',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF3D3D3D),
+                        ),
+                      ),
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF3D3D3D),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -184,6 +222,16 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                       decoration: const InputDecoration(
                         labelText: 'Max price (R)',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF3D3D3D),
+                        ),
+                      ),
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF3D3D3D),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -191,18 +239,31 @@ class _SearchPageState extends State<SearchPage> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF2563EB),
+                              side: const BorderSide(color: Color(0xFF2563EB)),
+                            ),
                             onPressed: () {
                               selCat = null;
                               minCtrl.clear();
                               maxCtrl.clear();
                               setStateModal(() {});
                             },
-                            child: const Text('Clear'),
+                            child: const Text(
+                              'Clear',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2563EB),
+                            ),
                             onPressed: () {
                               setState(() {
                                 _filterCategory = selCat;
@@ -216,7 +277,14 @@ class _SearchPageState extends State<SearchPage> {
                               Navigator.pop(ctx);
                               _submitSearch();
                             },
-                            child: const Text('Apply Filters'),
+                            child: const Text(
+                              'Apply Filters',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFFFFFFFF),
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -236,23 +304,36 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: const Color(0xFFFFFFFF),
         appBar: AppBar(
+          backgroundColor: const Color(0xFFFFFFFF),
           title: TextField(
             controller: _ctrl,
+            focusNode: _searchFocusNode,
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF3D3D3D),
+            ),
             decoration: const InputDecoration(
               border: InputBorder.none,
               hintText: 'Search products...',
+              hintStyle: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF3D3D3D),
+              ),
             ),
             textInputAction: TextInputAction.search,
             onSubmitted: (_) => _submitSearch(),
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.filter_list),
+              icon: const Icon(Icons.filter_list, color: Color(0xFF2563EB)),
               onPressed: _openFilterModal,
             ),
             IconButton(
-              icon: const Icon(Icons.search),
+              icon: const Icon(Icons.search, color: Color(0xFF2563EB)),
               onPressed: _submitSearch,
             ),
           ],
@@ -264,19 +345,47 @@ class _SearchPageState extends State<SearchPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  const Text('Sort:'),
+                  const Text(
+                    'Sort:',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF3D3D3D),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                   DropdownButton<String>(
                     value: _sort == 'none' ? null : _sort,
-                    hint: const Text('None'),
+                    hint: const Text(
+                      'None',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF3D3D3D),
+                      ),
+                    ),
                     items: const [
                       DropdownMenuItem(
                         value: 'low',
-                        child: Text('Price: Low→High'),
+                        child: Text(
+                          'Price: Low→High',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF3D3D3D),
+                          ),
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'high',
-                        child: Text('Price: High→Low'),
+                        child: Text(
+                          'Price: High→Low',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF3D3D3D),
+                          ),
+                        ),
                       ),
                     ],
                     onChanged: (v) => setState(() {
@@ -295,19 +404,43 @@ class _SearchPageState extends State<SearchPage> {
                   child: Wrap(
                     spacing: 8,
                     children: [
-                      const Chip(label: Text('Filters active')),
+                      const Chip(
+                        label: Text(
+                          'Filters active',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                       if (_filterCategory != null)
-                        Chip(label: Text('Category: ${_filterCategory!}')),
+                        Chip(
+                          label: Text(
+                            'Category: ${_filterCategory!}',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
                       if (_filterMinPrice != null)
                         Chip(
                           label: Text(
                             'Min: R${_filterMinPrice!.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       if (_filterMaxPrice != null)
                         Chip(
                           label: Text(
                             'Max: R${_filterMaxPrice!.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       TextButton(
@@ -319,7 +452,14 @@ class _SearchPageState extends State<SearchPage> {
                           });
                           _submitSearch();
                         },
-                        child: const Text('Clear'),
+                        child: const Text(
+                          'Clear',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF2563EB),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -336,17 +476,117 @@ class _SearchPageState extends State<SearchPage> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('Error: $_error'),
+                            Text(
+                              'Error: $_error',
+                              style: const TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF3D3D3D),
+                              ),
+                            ),
                             const SizedBox(height: 8),
                             ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2563EB),
+                              ),
                               onPressed: () => _submitSearch(),
-                              child: const Text('Retry'),
+                              child: const Text(
+                                'Retry',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFFFFFFFF),
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       )
                     : _results.isEmpty
-                    ? const Center(child: Text('No results found'))
+                    ? Center(
+                        child: Container(
+                          width: double.infinity,
+                          height: 280, // Taller card height
+                          margin: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2563EB),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'No results found',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 22, // Larger text size
+                                  color: Color(0xFFFFFFFF),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Container(
+                                width: double.infinity,
+                                height: 1,
+                                color: const Color(0xFFFFFFFF).withOpacity(0.3),
+                              ),
+                              const SizedBox(height: 16),
+                              const Expanded(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Helpful tips:\n',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 16,
+                                        color: Color(0xFFFFFFFF),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      '• Be sure to use correct spelling for keywords\n• Try using general keywords',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 16,
+                                        color: Color(0xFFFFFFFF),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFF000000),
+                                  side: const BorderSide(color: Color(0xFFFFFFFF)),
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.popUntil(context, (route) => route.isFirst);
+                                },
+                                child: const Text(
+                                  'Home',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16, // Larger button text
+                                    color: Color(0xFF000000),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
                     : ListView.separated(
                         itemCount: _results.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
@@ -367,4 +607,4 @@ class _SearchPageState extends State<SearchPage> {
       ),
     );
   }
-}
+} 
